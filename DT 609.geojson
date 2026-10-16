@@ -1,0 +1,762 @@
+﻿{
+    "type": "FeatureCollection",
+    "name": "DT 609",
+    "crs": {
+        "type": "name",
+        "properties": {
+            "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+        }
+    },
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 4",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.21433333,
+                    15.88010167,
+                    -1.1
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 5",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.20684,
+                    15.87593833,
+                    -5.9
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 6",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.19788,
+                    15.87346667,
+                    -9.2
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 7",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.19038833,
+                    15.8784,
+                    -5.4
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 8",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.184585,
+                    15.88523,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 9",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.17661667,
+                    15.88891,
+                    -1.4
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 10",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.16728333,
+                    15.88933667,
+                    -9.3
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 11",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.15846833,
+                    15.88919333,
+                    -7.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 12",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.14889,
+                    15.88876833,
+                    -13.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 13",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.139245,
+                    15.88645167,
+                    -4.1
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 14",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.132,
+                    15.884405,
+                    3.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 15",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.12287833,
+                    15.88272167,
+                    1.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 17",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.10492,
+                    15.87839167,
+                    12.4
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 19",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.08814167,
+                    15.877015,
+                    8.0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 21",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.06748667,
+                    15.87793,
+                    -1.2
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Biển báo 40",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.060875,
+                    15.87526167,
+                    -1.0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 23",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.06098333,
+                    15.875315,
+                    -0.3
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 23",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.05402667,
+                    15.869705,
+                    9.3
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 24",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.045995,
+                    15.86750833,
+                    6.6
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 25",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.03627,
+                    15.86431833,
+                    9.8
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 26",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.02824167,
+                    15.86008833,
+                    -1.0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 27",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.02113667,
+                    15.85396167,
+                    2.2
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 28",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.01265333,
+                    15.85090333,
+                    12.4
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 29",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.00377667,
+                    15.852865,
+                    3.6
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 30",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.995375,
+                    15.85535833,
+                    -7.3
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 31",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.98839,
+                    15.86067,
+                    1.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 32",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.97982833,
+                    15.86379333,
+                    -3.7
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 33",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.97112,
+                    15.86193167,
+                    -3.0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 34",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.962895,
+                    15.85815833,
+                    2.6
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 35",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.95434333,
+                    15.854435,
+                    2.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 36",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.94584333,
+                    15.850875,
+                    4.1
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 37",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.93774833,
+                    15.846645,
+                    6.3
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 38",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.93299667,
+                    15.84192167,
+                    1.2
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 39",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.925095,
+                    15.84527667,
+                    5.8
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 41",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.90907167,
+                    15.85201833,
+                    4.4
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 42",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.90217167,
+                    15.85616167,
+                    8.2
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 43",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.89436833,
+                    15.858935,
+                    5.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 44",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.88998167,
+                    15.86629333,
+                    7.6
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 45",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.88553833,
+                    15.87241,
+                    8.9
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km 46",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.87874,
+                    15.87768333,
+                    12.7
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Km3 + 100",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.22201667,
+                    15.88302167,
+                    9.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Ái Nghĩa",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.11326110747137,
+                    15.88273295854031,
+                    -7.2
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Quan Âm",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.07721333,
+                    15.87842333,
+                    -0.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Lộc Mỹ",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    108.06945833,
+                    15.87831833,
+                    1.9
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Ba Khe 1",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.99173,
+                    15.85962,
+                    -3.2
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Ba khe 2",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.97587667,
+                    15.86423167,
+                    1.9
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Ba Khe 3",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.96872833,
+                    15.86143333,
+                    24.0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Hà Tân",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.93474473120831,
+                    15.847145331026192,
+                    0.9
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Bàu Làng",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.93362367238537,
+                    15.844766612543841,
+                    3.5
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Cầu Khe Đổ",
+                "icon": null
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    107.91928167,
+                    15.84791167,
+                    7.3
+                ]
+            }
+        }
+    ]
+}

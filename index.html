@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ Đà Nẵng</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Sự cố hiện trường (bổ sung 10/2026) -->
+    <link rel="stylesheet" href="su_co.css" />
+
+    <style>
+        /* Trang chính: reset margin/padding và font mặc định */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+
+        /* Khung bản đồ phủ toàn màn hình */
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Nhóm các nút điều khiển */
+        .controls-container {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 250px;
+        }
+
+        /* Style cho bảng chọn tên đường */
+        .selector-box {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Select danh sách đường */
+        #road-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Nút thao tác (định vị + chia sẻ) */
+        .locate-button,
+        .share-button {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+            font-weight: bold;
+            border: none;
+            width: 100%;
+        }
+
+        .share-button {
+            background: #4CAF50;
+            color: white;
+        }
+
+        /* 1. Loại bỏ độ rộng tối thiểu mặc định của Leaflet */
+        .info-popup {
+            min-width: auto !important;
+            display: inline-block;
+        }
+
+
+        /* Tiêu đề popup cho vùng */
+        .info-popup h3 {
+            margin: 0 0 10px 0;
+            color: #0026FF;
+            border-bottom: 2px solid #FF6A00;
+        }
+
+        /* Popup đường ĐT */
+        .info-popup h4 {
+            margin: 0;
+            color: #0026FF;
+            white-space: nowrap;
+            /* Ép chữ không được xuống dòng */
+            border-bottom: none;
+            /* Xóa gạch chân vệt cam */
+        }
+
+        /* 3. QUAN TRỌNG: Thu nhỏ khoảng trắng của bong bóng Leaflet */
+        .leaflet-popup-content {
+            margin: 7px 15px !important;
+            /* Chỉnh lại khoảng cách từ chữ tới viền popup trắng */
+            width: auto !important;
+            /* Ép khung trắng co lại theo nội dung */
+        }
+
+        /* Bảng thuộc tính trong popup */
+        .info-popup table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* Dòng thuộc tính */
+        .info-popup td {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 10px;
+        }
+
+        /* Cột nhãn */
+        .info-popup td:first-child {
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Tùy biến nút layer của Leaflet */
+        .leaflet-control-layers-toggle:after {
+            content: "Chọn loại bản đồ";
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+            padding-left: 30px;
+            line-height: 36px;
+            white-space: nowrap;
+        }
+
+        .leaflet-control-layers-toggle {
+            width: auto !important;
+            height: 36px !important;
+            padding: 0 10px;
+            background-position: 5px center !important;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Nhãn tên đường trên bản đồ */
+        .road-label {
+            background: none;
+            color: rgb(252, 2, 2);
+            padding: 2px 8px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            border: none;
+            text-align: center;
+            text-shadow: #eee 2px 2px 4px;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dt609-label {
+            background: none;
+            color: rgb(6, 2, 252);
+            padding: 0;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+            border: none;
+            text-shadow: #eee 2px 2px 4px;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        /* ===== LỚP PCTT (điểm ngập úng, sạt lở) – bổ sung 10/2026 ===== */
+        .pctt-panel {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+            width: 300px;
+            max-width: calc(100vw - 70px);
+            font-size: 12px;
+        }
+
+        .pctt-panel .pctt-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 8px 10px;
+            font-weight: bold;
+            color: #0026FF;
+            cursor: pointer;
+            border-bottom: 2px solid #FF6A00;
+        }
+
+        .pctt-panel.collapsed .pctt-head { border-bottom: none; }
+        .pctt-panel.collapsed .pctt-body { display: none; }
+
+        .pctt-body { padding: 8px 10px; }
+
+        .pctt-body select {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .pctt-summary { color: #333; margin: 2px 0 6px; }
+
+        .pctt-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 38vh;
+            overflow-y: auto;
+            border-top: 1px solid #eee;
+        }
+
+        .pctt-list li {
+            padding: 5px 2px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            line-height: 1.35;
+        }
+
+        .pctt-list li:hover { background: #fff6e5; }
+        .pctt-list .ma { color: #777; font-size: 11px; }
+
+        .pctt-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #999;
+        }
+
+        .pctt-dot.cao { border-color: #d50000; box-shadow: 0 0 0 1px #d50000; }
+
+        .pctt-legend {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #eee;
+            color: #444;
+            line-height: 1.7;
+        }
+
+        .pctt-legend .ln {
+            display: inline-block;
+            width: 22px;
+            height: 0;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .pctt-btn {
+            margin-top: 6px;
+            width: 100%;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            background: #0026FF;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .pctt-tapket {
+            background: #ff9800;
+            color: #fff;
+            font-size: 10px;
+            font-weight: bold;
+            border: 2px solid #fff;
+            border-radius: 3px;
+            text-align: center;
+            line-height: 14px;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+        }
+
+        .pctt-popup {
+            min-width: 240px;
+            max-width: 320px;
+            max-height: 55vh;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .pctt-popup h4 {
+            margin: 0 0 4px 0;
+            color: #0026FF;
+            white-space: normal;
+        }
+
+        .pctt-popup .sec {
+            margin: 8px 0 2px;
+            padding: 2px 6px;
+            font-weight: bold;
+            font-size: 11px;
+            color: #fff;
+            border-radius: 3px;
+        }
+
+        .pctt-popup .sec.ht { background: #1565c0; }
+        .pctt-popup .sec.pa { background: #ef6c00; }
+        .pctt-popup .sec.gp { background: #6a1b9a; }
+        .pctt-popup .sec.kq { background: #2e7d32; }
+
+        .pctt-popup table { width: 100%; border-collapse: collapse; }
+
+        .pctt-popup td {
+            padding: 3px 2px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+            font-size: 11px;
+        }
+
+        .pctt-popup td:first-child { font-weight: bold; color: #555; width: 38%; }
+        .pctt-popup .empty { color: #999; font-style: italic; }
+        .pctt-popup .src { margin-top: 6px; color: #888; font-size: 10px; word-break: break-word; }
+    </style>
+</head>
+
+<body>
+    <!-- Cụm điều khiển nằm góc phải dưới -->
+    <div class="controls-container">
+        <div class="selector-box">
+            <select id="road-select" onchange="zoomToRoad(this.value)">
+                <option value="">-- Chọn tên đường --</option>
+            </select>
+        </div>
+
+        <button class="locate-button" onclick="findMyState()">📍 Vị trí của tôi</button>
+        <button class="share-button" onclick="shareLocation()">🔗 Chia sẻ vị trí của tôi</button>
+    </div>
+
+    <!-- Bản đồ Leaflet -->
+    <div id="map"></div>
+
+    <script>
+        // Khởi tạo bản đồ
+        var map = L.map('map', { center: [16.0544, 108.2022], zoom: 11 });
+        // Vị trí hiện tại của người dùng
+        var currentUserPos = null;
+        // Lớp đường đang được tô nổi bật
+        var lastHighlightedLayer = null;
+        // Marker vị trí người dùng
+        var currentUserMarker = null;
+        // Bộ định thời cập nhật vị trí
+        var locationIntervalId = null;
+
+        // Các lớp nền Google
+        // (Cập nhật 10/2026) Dùng https để tránh lỗi "mixed content" khi chạy trên GitHub Pages
+        var googleHybrid = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Google Hybrid'
+        }).addTo(map);
+
+        var googleRoadmap = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Google Roadmap'
+        });
+
+        var googleTerrain = L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Google Terrain'
+        });
+
+        // Bộ chuyển lớp nền (lưu tham chiếu để bổ sung các lớp PCTT)
+        var baseMaps = { "Vệ tinh": googleHybrid, "Giao thông": googleRoadmap, "Địa hình": googleTerrain };
+        var layerControl = L.control.layers(baseMaps).addTo(map);
+
+        // Lớp dữ liệu GeoJSON
+        let geoJsonLayer, dtLayer, dt609Layer;
+        // Lớp nhãn đường
+        let labelLayer = L.layerGroup().addTo(map);
+
+        // Cập nhật nhãn đường theo vùng nhìn
+        function updateVisibleLabels() {
+            labelLayer.clearLayers();
+            if (map.getZoom() < 10) return;
+            if (!dtLayer) return;
+            const bounds = map.getBounds();
+
+            dtLayer.eachLayer(function (layer) {
+                const props = layer.feature.properties;
+                if (!props || !props.name) return;
+
+                let latlngs = [];
+                if (layer.feature.geometry.type === 'LineString') {
+                    latlngs = layer.getLatLngs();
+                } else if (layer.feature.geometry.type === 'MultiLineString') {
+                    layer.getLatLngs().forEach(arr => latlngs.push(...arr));
+                }
+
+                const visiblePoints = latlngs.filter(p => bounds.contains(p));
+                if (visiblePoints.length > 0) {
+                    let latSum = 0, lngSum = 0;
+                    visiblePoints.forEach(p => { latSum += p.lat; lngSum += p.lng; });
+                    const dynamicCenter = L.latLng(latSum / visiblePoints.length, lngSum / visiblePoints.length);
+
+                    L.marker(dynamicCenter, {
+                        icon: L.divIcon({
+                            className: 'road-label-container',
+                            html: `<div class="road-label">${props.name}</div>`,
+                            iconSize: [8, 20], iconAnchor: [40, 20]
+                        }),
+                        interactive: false
+                    }).addTo(labelLayer);
+                }
+            });
+        }
+
+        // Khi bản đồ dừng di chuyển thì cập nhật nhãn
+        map.on('moveend', updateVisibleLabels);
+
+        // HÀM XỬ LÝ SỰ KIỆN CHO MỖI ĐỐI TƯỢNG
+        function onEachFeatureHandler(feature, layer) {
+            if (feature.properties) {
+                const p = feature.properties;
+                const labels = { "dan_so": "Dân số", "dtich_km2": "Diện tích (km²)", "matdo_km2": "Mật độ" };
+                const keysToHide = ['name', 'styleUrl', 'styleHash', 'description', 'stroke', 'fill', 'fill-opacity', 'stroke-opacity', 'stroke-width', 'Tên phường/xã', 'ten_xa', 'loai'];
+
+                let fullTitle = (p.loai ? p.loai + " " : "") + (p.ten_xa || p.name || "Thông tin");
+
+                // KIỂM TRA: Nếu là dữ liệu đường (DT.geojson)
+                if (feature.geometry.type === "LineString" || feature.geometry.type === "MultiLineString") {
+                    // Chỉ hiển thị tiêu đề tên đường, không tạo bảng thuộc tính
+                    layer.bindPopup(`<div class="info-popup"><h4>${fullTitle}</h4></div>`);
+                }
+                // Ngược lại nếu là dữ liệu vùng (map.geojson)
+                else {
+                    let rows = "";
+                    for (let key in p) {
+                        if (!keysToHide.includes(key)) {
+                            let displayLabel = labels[key] || key;
+                            rows += `<tr><td>${displayLabel}</td><td style="text-align:right">${p[key]}</td></tr>`;
+                        }
+                    }
+                    layer.bindPopup(`<div class="info-popup"><h3>${fullTitle}</h3><table>${rows}</table></div>`);
+                }
+            }
+
+            layer.on({
+                mouseover: function (e) {
+                    if (e.target !== lastHighlightedLayer) {
+                        e.target.setStyle({ weight: 7, color: '#FF0000' });
+                        e.target.bringToFront();
+                    }
+                },
+                mouseout: function (e) {
+                    if (e.target !== lastHighlightedLayer) {
+                        if (dtLayer && (e.target.feature.geometry.type === "LineString" || e.target.feature.geometry.type === "MultiLineString")) {
+                            dtLayer.resetStyle(e.target);
+                        } else {
+                            geoJsonLayer.resetStyle(e.target);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Tải dữ liệu ranh giới
+        fetch('map.geojson')
+            .then(res => res.json())
+            .then(data => {
+                // Lớp vùng
+                geoJsonLayer = L.geoJSON(data, {
+                    style: function () { return { fillOpacity: 0.1, color: getRandomColor(), weight: 1 }; },
+                    onEachFeature: onEachFeatureHandler
+                }).addTo(map);
+                return fetch('DT.geojson');
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Lớp đường
+                dtLayer = L.geoJSON(data, {
+                    style: function () { return { color: '#000000', weight: 4, opacity: 1 }; },
+                    onEachFeature: onEachFeatureHandler
+                }).addTo(map);
+                dtLayer.bringToFront();
+
+                // Tạo danh sách chọn tên đường
+                const roadSelect = document.getElementById('road-select');
+                let roadNames = [];
+
+                data.features.forEach(f => {
+                    if (f.properties && f.properties.name) {
+                        roadNames.push(f.properties.name);
+                    }
+                });
+
+                [...new Set(roadNames)].sort().forEach(name => {
+                    let option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    roadSelect.appendChild(option);
+                });
+
+                updateVisibleLabels();
+            });
+
+        // Tải dữ liệu mốc DT 609
+        fetch('DT 609.geojson')
+            .then(res => res.json())
+            .then(data => {
+                dt609Layer = L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        const label = (feature.properties && (feature.properties.Name || feature.properties.name)) || "";
+                        return L.marker(latlng, {
+                            icon: L.divIcon({
+                                className: 'dt609-label',
+                                html: `<div>${label}</div>`,
+                                iconSize: [0, 0]
+                            })
+                        });
+                    },
+                    onEachFeature: function (feature, layer) {
+                        const label = feature.properties && (feature.properties.Name || feature.properties.name);
+                        if (label) {
+                            layer.bindPopup(`<div class="info-popup"><h4>${label}</h4></div>`);
+                        }
+                    }
+                });
+                updateDt609Visibility();
+            });
+
+        function updateDt609Visibility() {
+            if (!dt609Layer) return;
+            if (map.getZoom() >= 14) {
+                if (!map.hasLayer(dt609Layer)) {
+                    dt609Layer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(dt609Layer)) {
+                    map.removeLayer(dt609Layer);
+                }
+            }
+        }
+
+        map.on('zoomend', updateDt609Visibility);
+
+        // HÀM CHỌN ĐƯỜNG: Phóng to + Bôi đỏ + Làm dày
+        function zoomToRoad(roadName) {
+            if (!roadName) return;
+
+            if (lastHighlightedLayer) {
+                dtLayer.resetStyle(lastHighlightedLayer);
+            }
+
+            dtLayer.eachLayer(function (layer) {
+                if (layer.feature.properties.name === roadName) {
+                    lastHighlightedLayer = layer;
+                    map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+
+                    // Thiết lập bôi đỏ (#FD800) và làm dày (8)
+                    layer.setStyle({
+                        color: '#FFD800',
+                        weight: 8,
+                        opacity: 1
+                    });
+                    layer.bringToFront();
+                    layer.openPopup();
+                }
+            });
+        }
+
+        // Định vị người dùng và cập nhật định kỳ
+        function findMyState() {
+            navigator.geolocation.getCurrentPosition(function (p) {
+                const lat = p.coords.latitude, lng = p.coords.longitude;
+                currentUserPos = [lat, lng];
+
+                // Xóa marker cũ nếu có
+                if (currentUserMarker) {
+                    map.removeLayer(currentUserMarker);
+                }
+
+                // Tạo marker mới và chỉ zoom ở lần bấm đầu
+                currentUserMarker = L.marker(currentUserPos).addTo(map).bindPopup("<b>Bạn đang ở đây!</b>").openPopup();
+                map.setView(currentUserPos, 15);
+
+                // Bắt đầu cập nhật mỗi 5 giây sau lần bấm đầu tiên
+                if (!locationIntervalId) {
+                    locationIntervalId = setInterval(function () {
+                        navigator.geolocation.getCurrentPosition(function (p) {
+                            const lat = p.coords.latitude, lng = p.coords.longitude;
+                            currentUserPos = [lat, lng];
+
+                            // Xóa marker cũ
+                            if (currentUserMarker) {
+                                map.removeLayer(currentUserMarker);
+                            }
+
+                            // Tạo marker mới, không thay đổi zoom
+                            currentUserMarker = L.marker(currentUserPos).addTo(map).bindPopup("<b>Bạn đang ở đây!</b>");
+                        });
+                    }, 5000);
+                }
+            });
+        }
+
+        // Chia sẻ vị trí hiện tại
+        function shareLocation() {
+            if (!currentUserPos) {
+                alert("Vui lòng nhấn 'Vị trí của tôi' trước khi chia sẻ!");
+                return;
+            }
+            const url = `https://www.google.com/maps?q=${currentUserPos[0]},${currentUserPos[1]}`;
+            if (navigator.share) {
+                navigator.share({ title: 'Vị trí của tôi', text: 'Vị trí của tôi', url: url });
+            } else {
+                navigator.clipboard.writeText(url);
+                alert("Link vị trí đã được copy vào bộ nhớ tạm!");
+            }
+        }
+
+        // Tạo màu ngẫu nhiên cho vùng
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) { color += letters[Math.floor(Math.random() * 16)]; }
+            return color;
+        }
+
+        // =====================================================================
+        // LỚP PCTT: ĐIỂM/ĐOẠN NGẬP ÚNG, SẠT LỞ, TUYẾN TRÁNH, ĐIỂM TẬP KẾT, CỌC H
+        // Dữ liệu: PCTT_BaoLu.geojson (chuyển đổi từ KMZ "Bão Lũ 29.09.2026 Theo Tuyến")
+        // Tham số URL hỗ trợ: ?tuyen=ĐT.603B  &loai=Ngập nước  &ma=DT603B-NH01
+        // =====================================================================
+        const PCTT_COLORS = { 'Ngập nước': '#1e88e5', 'Sạt lở': '#8d5524', 'Nguy cơ khác': '#757575' };
+        const PCTT_FIELDS_HIEN_TRANG = ['Tuyến', 'Chiều dài', 'Lý trình', 'Điểm nội suy', 'Địa phương', 'Mô tả sự cố', 'Phân loại', 'Đánh giá nguy cơ', 'Ghi chú'];
+        const PCTT_FIELDS_PHUONG_AN = ['Lực lượng', 'Phương tiện', 'Vật tư, thiết bị', 'Đơn vị thực hiện/phối hợp', 'Doanh nghiệp phối hợp', 'Phương án phân luồng'];
+
+        map.createPane('pcttLines'); map.getPane('pcttLines').style.zIndex = 420;
+        map.createPane('pcttPoints'); map.getPane('pcttPoints').style.zIndex = 450;
+
+        const pcttGroups = {
+            ngap: L.layerGroup().addTo(map),
+            satlo: L.layerGroup().addTo(map),
+            tranh: L.layerGroup().addTo(map),
+            tapket: L.layerGroup().addTo(map),
+            coc: L.layerGroup()
+        };
+        let pcttItems = [];          // { feature, layer, group }
+        let pcttHazardByMa = {};     // mã điểm -> item
+        let pcttFilter = { tuyen: '', loai: '' };
+
+        function escHtml(v) {
+            return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function pcttColor(p) { return PCTT_COLORS[p.phan_loai] || PCTT_COLORS['Nguy cơ khác']; }
+
+        function pcttRows(obj, keys) {
+            return keys.filter(k => obj[k] !== undefined && obj[k] !== '')
+                .map(k => `<tr><td>${escHtml(k)}</td><td>${escHtml(obj[k])}</td></tr>`).join('');
+        }
+
+        function pcttValueOrEmpty(v) {
+            return v ? escHtml(v) : '<span class="empty">Chưa có dữ liệu – cập nhật khi có hồ sơ</span>';
+        }
+
+        function pcttHazardPopup(p, latlng) {
+            const tt = p.thong_tin || {};
+            const otherKeys = Object.keys(tt).filter(k => !PCTT_FIELDS_HIEN_TRANG.includes(k) && !PCTT_FIELDS_PHUONG_AN.includes(k));
+            const ht = pcttRows(tt, PCTT_FIELDS_HIEN_TRANG.concat(otherKeys));
+            const pa = pcttRows(tt, PCTT_FIELDS_PHUONG_AN);
+            const toaDo = latlng ? `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}` : '';
+            const gmap = latlng ? `<a href="https://www.google.com/maps?q=${latlng.lat},${latlng.lng}" target="_blank" rel="noopener">Mở Google Maps</a>` : '';
+            return `<div class="pctt-popup">
+                <h4>${escHtml(p.ma)} · ${escHtml(p.ten)}</h4>
+                <div class="sec ht">1. Thông tin hiện trạng (theo hồ sơ PCTT)</div>
+                <table>${ht || '<tr><td colspan="2" class="empty">Không có</td></tr>'}
+                    ${toaDo ? `<tr><td>Tọa độ (WGS84)</td><td>${toaDo}<br>${gmap}</td></tr>` : ''}</table>
+                <div class="sec pa">2. Phương án ứng phó (theo phương án PCTT)</div>
+                <table>${pa || '<tr><td colspan="2" class="empty">Không có</td></tr>'}</table>
+                <div class="sec gp">3. Giải pháp xử lý đề xuất</div>
+                <div>${pcttValueOrEmpty(p.giai_phap_de_xuat)}</div>
+                <div class="sec kq">4. Kết quả xử lý đã xác nhận</div>
+                <div>${pcttValueOrEmpty(p.ket_qua_xac_nhan)}</div>
+                ${p.ho_so_lien_quan ? `<div class="src">Hồ sơ liên quan: ${escHtml(p.ho_so_lien_quan)}</div>` : ''}
+                ${p.ngay_cap_nhat ? `<div class="src">Cập nhật: ${escHtml(p.ngay_cap_nhat)}</div>` : ''}
+                <div class="src">Nguồn: ${escHtml(p.nguon)}</div>
+            </div>`;
+        }
+
+        function pcttSimplePopup(title, p) {
+            return `<div class="pctt-popup"><h4>${escHtml(title)}</h4>
+                ${p.mo_ta ? `<div>${escHtml(p.mo_ta)}</div>` : ''}
+                <div class="src">Tuyến: ${escHtml(p.tuyen)}<br>Nguồn: ${escHtml(p.nguon)}</div></div>`;
+        }
+
+        function pcttBuildLayer(f) {
+            const p = f.properties;
+            const g = f.geometry;
+            if (!g) return null;
+            const isPoint = g.type === 'Point';
+            const ll = isPoint ? L.latLng(g.coordinates[1], g.coordinates[0]) : null;
+            const lineLL = isPoint ? null : g.coordinates.map(c => [c[1], c[0]]);
+            let layer = null, group = null;
+
+            if (p.nhom === 'nguy_hiem') {
+                group = p.phan_loai === 'Ngập nước' ? 'ngap' : 'satlo';
+                const cao = p.danh_gia_nguy_co === 'Nguy cơ cao';
+                if (isPoint) {
+                    layer = L.circleMarker(ll, {
+                        pane: 'pcttPoints', radius: 8, fillColor: pcttColor(p), fillOpacity: 0.95,
+                        color: cao ? '#d50000' : '#ffffff', weight: cao ? 3 : 2
+                    });
+                } else {
+                    layer = L.polyline(lineLL, { pane: 'pcttLines', color: pcttColor(p), weight: 8, opacity: 0.8 });
+                }
+                const anchor = isPoint ? ll : null;
+                layer.bindPopup(() => pcttHazardPopup(p, anchor || layer.getBounds().getCenter()), { maxWidth: 340 });
+                layer.bindTooltip(`${p.ma} · ${p.ly_trinh || p.ten}`, { direction: 'top' });
+            } else if (p.nhom === 'doan_nguy_hiem') {
+                group = p.phan_loai === 'Ngập nước' ? 'ngap' : 'satlo';
+                layer = L.polyline(lineLL, { pane: 'pcttLines', color: pcttColor(p), weight: 8, opacity: 0.7 });
+                layer.bindPopup(() => {
+                    const h = pcttHazardByMa[p.ma_diem];
+                    return h ? pcttHazardPopup(h.feature.properties, h.layer.getLatLng ? h.layer.getLatLng() : null)
+                        : pcttSimplePopup(p.ten, p);
+                }, { maxWidth: 340 });
+                layer.bindTooltip(`Đoạn ${p.ten}`, { sticky: true });
+            } else if (p.nhom === 'tuyen_tranh') {
+                group = 'tranh';
+                if (isPoint) {
+                    layer = L.circleMarker(ll, { pane: 'pcttPoints', radius: 5, fillColor: '#2e7d32', fillOpacity: 1, color: '#fff', weight: 1.5 });
+                } else {
+                    layer = L.polyline(lineLL, { pane: 'pcttLines', color: '#2e7d32', weight: 4, opacity: 0.9, dashArray: '8 6' });
+                }
+                layer.bindPopup(pcttSimplePopup('Tuyến tránh / phân luồng: ' + p.ten, p), { maxWidth: 340 });
+            } else if (p.nhom === 'tap_ket') {
+                group = 'tapket';
+                layer = L.marker(ll, {
+                    pane: 'pcttPoints',
+                    icon: L.divIcon({ className: 'pctt-tapket', html: 'VT', iconSize: [22, 18], iconAnchor: [11, 9] })
+                });
+                layer.bindPopup(pcttSimplePopup('Điểm tập kết vật tư, thiết bị: ' + p.ten, p), { maxWidth: 340 });
+            } else if (p.nhom === 'coc_h') {
+                group = 'coc';
+                layer = L.circleMarker(ll, { pane: 'pcttPoints', radius: 4, fillColor: '#212121', fillOpacity: 1, color: '#ffeb3b', weight: 2 });
+                layer.bindTooltip(p.ten, { direction: 'right' });
+                layer.bindPopup(pcttSimplePopup('Cọc H hiện trạng: ' + p.ten, p), { maxWidth: 340 });
+            }
+            return layer ? { feature: f, layer: layer, group: group } : null;
+        }
+
+        function pcttMatch(item) {
+            const p = item.feature.properties;
+            if (pcttFilter.tuyen && p.tuyen !== pcttFilter.tuyen) return false;
+            if (pcttFilter.loai && (p.nhom === 'nguy_hiem' || p.nhom === 'doan_nguy_hiem') && p.phan_loai !== pcttFilter.loai) return false;
+            return true;
+        }
+
+        function pcttHazards() {
+            return pcttItems.filter(it => it.feature.properties.nhom === 'nguy_hiem' && pcttMatch(it));
+        }
+
+        function pcttApplyFilter(fit) {
+            Object.values(pcttGroups).forEach(g => g.clearLayers());
+            const shown = [];
+            pcttItems.forEach(it => {
+                if (pcttMatch(it)) { pcttGroups[it.group].addLayer(it.layer); shown.push(it.layer); }
+            });
+            pcttRenderList();
+            if (fit && pcttFilter.tuyen && shown.length) {
+                map.fitBounds(L.featureGroup(shown).getBounds(), { padding: [40, 40], maxZoom: 16 });
+            }
+        }
+
+        function pcttRenderList() {
+            const items = pcttHazards();
+            const nNgap = items.filter(it => it.feature.properties.phan_loai === 'Ngập nước').length;
+            const nCao = items.filter(it => it.feature.properties.danh_gia_nguy_co === 'Nguy cơ cao').length;
+            document.getElementById('pctt-summary').innerHTML =
+                `<b>${items.length}</b> điểm/đoạn nguy hiểm · <b>${nNgap}</b> ngập nước · <b>${nCao}</b> nguy cơ cao`;
+            const ul = document.getElementById('pctt-list');
+            ul.innerHTML = items.map(it => {
+                const p = it.feature.properties;
+                const cao = p.danh_gia_nguy_co === 'Nguy cơ cao';
+                return `<li data-ma="${escHtml(p.ma)}"><span class="pctt-dot${cao ? ' cao' : ''}" style="background:${pcttColor(p)}"></span>`
+                    + `<b>${escHtml(p.ly_trinh || p.ten)}</b> – ${escHtml(p.phan_loai)}`
+                    + `${p.danh_gia_nguy_co ? ' (' + escHtml(p.danh_gia_nguy_co.replace('Nguy cơ ', '')) + ')' : ''}`
+                    + `<br><span class="ma">${escHtml(p.ma)} · ${escHtml(p.tuyen)}${p.dia_phuong ? ' · ' + escHtml(p.dia_phuong) : ''}</span></li>`;
+            }).join('') || '<li class="empty">Không có điểm phù hợp bộ lọc</li>';
+        }
+
+        function pcttFocus(ma) {
+            const it = pcttHazardByMa[ma];
+            if (!it) return;
+            if (!map.hasLayer(pcttGroups[it.group])) map.addLayer(pcttGroups[it.group]);
+            if (!pcttGroups[it.group].hasLayer(it.layer)) pcttGroups[it.group].addLayer(it.layer);
+            if (it.layer.getLatLng) map.setView(it.layer.getLatLng(), 17);
+            else map.fitBounds(it.layer.getBounds(), { padding: [40, 40], maxZoom: 17 });
+            it.layer.openPopup();
+            if (window.innerWidth < 600) {
+                document.getElementById('pctt-panel').classList.add('collapsed');
+                document.getElementById('pctt-toggle').textContent = '▸';
+            }
+        }
+
+        function pcttExportCsv() {
+            const cols = ['Mã', 'Tuyến', 'Tên', 'Lý trình', 'Phân loại', 'Đánh giá nguy cơ', 'Địa phương', 'Mô tả sự cố',
+                'Lực lượng', 'Vật tư, thiết bị', 'Đơn vị thực hiện/phối hợp', 'Phương án phân luồng',
+                'Giải pháp xử lý đề xuất', 'Kết quả đã xác nhận', 'Vĩ độ', 'Kinh độ'];
+            const rows = pcttHazards().map(it => {
+                const p = it.feature.properties, tt = p.thong_tin || {};
+                const ll = it.layer.getLatLng ? it.layer.getLatLng() : it.layer.getBounds().getCenter();
+                return [p.ma, p.tuyen, p.ten, p.ly_trinh, p.phan_loai, p.danh_gia_nguy_co, p.dia_phuong, tt['Mô tả sự cố'],
+                    tt['Lực lượng'], tt['Vật tư, thiết bị'], tt['Đơn vị thực hiện/phối hợp'], tt['Phương án phân luồng'],
+                    p.giai_phap_de_xuat, p.ket_qua_xac_nhan, ll.lat.toFixed(6), ll.lng.toFixed(6)];
+            });
+            const csv = '﻿' + [cols].concat(rows).map(r => r.map(v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+            a.download = 'danh_muc_diem_nguy_hiem' + (pcttFilter.tuyen ? '_' + pcttFilter.tuyen.replace(/[^\wĐđ]/g, '') : '') + '.csv';
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+
+        // Bảng điều khiển PCTT (góc trái, dưới nút phóng to/thu nhỏ)
+        const PcttPanel = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: function () {
+                const div = L.DomUtil.create('div', 'pctt-panel' + (window.innerWidth < 600 ? ' collapsed' : ''));
+                div.id = 'pctt-panel';
+                div.innerHTML = `
+                    <div class="pctt-head" id="pctt-head"><span>⚠ Điểm nguy hiểm mùa mưa bão</span><span id="pctt-toggle">${window.innerWidth < 600 ? '▸' : '▾'}</span></div>
+                    <div class="pctt-body">
+                        <select id="pctt-tuyen"><option value="">-- Tất cả tuyến --</option></select>
+                        <select id="pctt-loai">
+                            <option value="">-- Tất cả loại nguy hiểm --</option>
+                            <option value="Ngập nước">Ngập nước</option>
+                            <option value="Sạt lở">Sạt lở</option>
+                            <option value="Nguy cơ khác">Nguy cơ khác</option>
+                        </select>
+                        <div class="pctt-summary" id="pctt-summary">Đang tải dữ liệu…</div>
+                        <ul class="pctt-list" id="pctt-list"></ul>
+                        <button class="pctt-btn" id="pctt-csv">⬇ Tải danh mục (CSV)</button>
+                        <div class="pctt-legend">
+                            <span class="pctt-dot" style="background:${PCTT_COLORS['Ngập nước']}"></span>Ngập nước
+                            &nbsp;<span class="pctt-dot" style="background:${PCTT_COLORS['Sạt lở']}"></span>Sạt lở
+                            &nbsp;<span class="pctt-dot cao" style="background:#fff"></span>Viền đỏ: nguy cơ cao<br>
+                            <span class="ln" style="border-top:4px dashed #2e7d32"></span>Tuyến tránh/phân luồng
+                            &nbsp;<span class="pctt-tapket" style="display:inline-block;width:18px">VT</span> Điểm tập kết
+                        </div>
+                    </div>`;
+                L.DomEvent.disableClickPropagation(div);
+                L.DomEvent.disableScrollPropagation(div);
+                return div;
+            }
+        });
+        new PcttPanel().addTo(map);
+
+        document.getElementById('pctt-head').addEventListener('click', function () {
+            const panel = document.getElementById('pctt-panel');
+            panel.classList.toggle('collapsed');
+            document.getElementById('pctt-toggle').textContent = panel.classList.contains('collapsed') ? '▸' : '▾';
+        });
+        document.getElementById('pctt-tuyen').addEventListener('change', function () {
+            pcttFilter.tuyen = this.value;
+            pcttApplyFilter(true);
+        });
+        document.getElementById('pctt-loai').addEventListener('change', function () {
+            pcttFilter.loai = this.value;
+            pcttApplyFilter(false);
+        });
+        document.getElementById('pctt-list').addEventListener('click', function (e) {
+            const li = e.target.closest('li[data-ma]');
+            if (li) pcttFocus(li.getAttribute('data-ma'));
+        });
+        document.getElementById('pctt-csv').addEventListener('click', pcttExportCsv);
+
+        fetch('PCTT_BaoLu.geojson')
+            .then(res => res.json())
+            .then(data => {
+                data.features.forEach(f => {
+                    const it = pcttBuildLayer(f);
+                    if (!it) return;
+                    pcttItems.push(it);
+                    if (f.properties.nhom === 'nguy_hiem') pcttHazardByMa[f.properties.ma] = it;
+                });
+
+                layerControl.addOverlay(pcttGroups.ngap, '<span style="color:#1e88e5">●</span> Điểm/đoạn ngập nước');
+                layerControl.addOverlay(pcttGroups.satlo, '<span style="color:#8d5524">●</span> Điểm/đoạn sạt lở, nguy cơ khác');
+                layerControl.addOverlay(pcttGroups.tranh, '<span style="color:#2e7d32">┅</span> Tuyến tránh / phân luồng');
+                layerControl.addOverlay(pcttGroups.tapket, '<span style="color:#ff9800">■</span> Điểm tập kết vật tư, thiết bị');
+                layerControl.addOverlay(pcttGroups.coc, '<span>◉</span> Cọc H hiện trạng');
+
+                // Danh sách tuyến có điểm nguy hiểm
+                const tuyenSel = document.getElementById('pctt-tuyen');
+                const routes = [...new Set(pcttItems.filter(it => it.feature.properties.nhom === 'nguy_hiem')
+                    .map(it => it.feature.properties.tuyen))].sort((a, b) => a.localeCompare(b, 'vi'));
+                routes.forEach(r => {
+                    const n = pcttItems.filter(it => it.feature.properties.nhom === 'nguy_hiem' && it.feature.properties.tuyen === r).length;
+                    const o = document.createElement('option');
+                    o.value = r; o.textContent = `${r} (${n})`;
+                    tuyenSel.appendChild(o);
+                });
+
+                // Đọc tham số URL để mở sẵn tuyến/điểm (phục vụ chia sẻ, mã QR)
+                const q = new URLSearchParams(location.search);
+                if (q.get('tuyen') && routes.includes(q.get('tuyen'))) { pcttFilter.tuyen = q.get('tuyen'); tuyenSel.value = pcttFilter.tuyen; }
+                if (q.get('loai')) { pcttFilter.loai = q.get('loai'); document.getElementById('pctt-loai').value = pcttFilter.loai; }
+                pcttApplyFilter(!!pcttFilter.tuyen && !q.get('ma'));
+                if (q.get('ma')) pcttFocus(q.get('ma'));
+            })
+            .catch(err => {
+                document.getElementById('pctt-summary').textContent = 'Không tải được PCTT_BaoLu.geojson: ' + err;
+            });
+    </script>
+    <!-- Sự cố hiện trường: cấu hình máy chủ + chức năng (bổ sung 10/2026) -->
+    <script src="su_co_config.js"></script>
+    <script src="su_co.js"></script>
+</body>
+
+</html>
